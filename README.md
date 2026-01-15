@@ -1,7 +1,7 @@
 <h1 align="center">FileStreamBot</h1>
 <p align="center">
   <a href="https://github.com/Monster-ZeroX/FilezToLinkXBot">
-    <img src="https://graph.org/file/80d1f94e81bbc1acadb36.jpg" alt="Cover Image" width="550">
+    <img src="https://telegra.ph/file/56420442b9be7168a8cfb-a7a3a1400f8cdeeb6f.png" alt="Cover Image" width="550">
   </a>
 </p>  
   <p align="center">
@@ -188,13 +188,13 @@ PORT = 8080
 
 ### ❤️ Thanks To :
 
-- [**Me**](https://github.com/AvishkarPatil) : Owner of This FileStreamBot
+- [**Me**](https://github.com/Monster-ZeroX) : Owner of This FileStreamBot
 - [**Deekshith SH**](https://github.com/DeekshithSH) : for some modules.
 - [**EverythingSuckz**](https://github.com/EverythingSuckz) : for his [FileStreamBot](https://github.com/EverythingSuckz/FileStreamBot)
 - [**Biisal**](https://github.com/biisal) : for Stream Page UI
 
 ---
-<h4 align='center'>© 2024 Aνιѕнкαя Pαтιℓ</h4>
+<h4 align='center'>© 2024 MonsterZeroX</h4>
 
 
 
