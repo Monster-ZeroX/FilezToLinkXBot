@@ -186,13 +186,6 @@ PORT = 8080
 
 </details>
 
-### ❤️ Thanks To :
-
-- [**Me**](https://github.com/Monster-ZeroX) : Owner of This FileStreamBot
-- [**Deekshith SH**](https://github.com/DeekshithSH) : for some modules.
-- [**EverythingSuckz**](https://github.com/EverythingSuckz) : for his [FileStreamBot](https://github.com/EverythingSuckz/FileStreamBot)
-- [**Biisal**](https://github.com/biisal) : for Stream Page UI
-
 ---
 <h4 align='center'>© 2024 MonsterZeroX</h4>
 
