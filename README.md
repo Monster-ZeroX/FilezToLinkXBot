@@ -1,7 +1,7 @@
 <h1 align="center">FileStreamBot</h1>
 <p align="center">
   <a href="https://github.com/Monster-ZeroX/FilezToLinkXBot">
-    <img src="https://telegra.ph/file/56420442b9be7168a8cfb-a7a3a1400f8cdeeb6f.png" alt="Cover Image" width="550">
+    <img src="https://telegra.ph/file/ae0a9c47b0d0816f47536-acd01b6b0d1ad83c66.jpg" alt="Cover Image" width="550">
   </a>
 </p>  
   <p align="center">
