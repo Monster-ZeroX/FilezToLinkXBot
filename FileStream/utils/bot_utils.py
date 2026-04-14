@@ -48,24 +48,28 @@ async def is_user_joined(bot, message: Message):
             raise UserNotParticipant
     except UserNotParticipant:
         invite_link = await get_invite_link(bot, chat_id=channel_chat_id)
+        pt = message.text.split()[1] if message.text and len(message.text.split()) > 1 else "help"
+        refresh_link = f"https://t.me/{FileStream.username}?start={pt}"
         if Telegram.VERIFY_PIC:
             ver = await message.reply_photo(
                 photo=Telegram.VERIFY_PIC,
                 caption="<i>Jᴏɪɴ ᴍʏ ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟ ᴛᴏ ᴜsᴇ ᴍᴇ 🔐</i>",
                 parse_mode=ParseMode.HTML,
                 reply_markup=InlineKeyboardMarkup(
-                [[
-                    InlineKeyboardButton("❆ Jᴏɪɴ Oᴜʀ Cʜᴀɴɴᴇʟ ❆", url=invite_link)
-                ]]
+                [
+                    [InlineKeyboardButton("❆ Jᴏɪɴ Oᴜʀ Cʜᴀɴɴᴇʟ ❆", url=invite_link)],
+                    [InlineKeyboardButton("↻ Tʀʏ Aɢᴀɪɴ ↻", url=refresh_link)]
+                ]
                 )
             )
         else:
             ver = await message.reply_text(
                 text = "<i>Jᴏɪɴ ᴍʏ ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟ ᴛᴏ ᴜsᴇ ᴍᴇ 🔐</i>",
                 reply_markup=InlineKeyboardMarkup(
-                    [[
-                        InlineKeyboardButton("❆ Jᴏɪɴ Oᴜʀ Cʜᴀɴɴᴇʟ ❆", url=invite_link)
-                    ]]
+                    [
+                        [InlineKeyboardButton("❆ Jᴏɪɴ Oᴜʀ Cʜᴀɴɴᴇʟ ❆", url=invite_link)],
+                        [InlineKeyboardButton("↻ Tʀʏ Aɢᴀɪɴ ↻", url=refresh_link)]
+                    ]
                 ),
                 parse_mode=ParseMode.HTML
             )
