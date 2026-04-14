@@ -135,7 +135,6 @@ class Database:
         elif operation == "+":
             await self.col.update_one({"id": id}, {"$inc": {"Links": 1}})
 
-# ---------------------[ BANDWIDTH TRACKING ]---------------------#
     async def update_bandwidth(self, file_id, user_id, bytes_sent):
         today = datetime.date.today().isoformat()
         await self.stats.update_one({"_id": today}, {"$inc": {"bandwidth": bytes_sent}}, upsert=True)
@@ -143,6 +142,9 @@ class Database:
         if user_id:
             await self.col.update_one({"id": int(user_id)}, {"$inc": {"bandwidth_used": bytes_sent}})
         await self.file.update_one({"_id": ObjectId(file_id)}, {"$inc": {"bandwidth_used": bytes_sent}})
+
+    async def inc_download_count(self, file_id):
+        await self.file.update_one({"_id": ObjectId(file_id)}, {"$inc": {"downloads": 1}})
 
     async def get_top_users_by_bandwidth(self, limit=50):
         return await self.col.find({"bandwidth_used": {"$exists": True}}).sort("bandwidth_used", pymongo.DESCENDING).limit(limit).to_list(length=limit)

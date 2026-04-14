@@ -217,6 +217,9 @@ async def media_streamer(request: web.Request, db_id: str):
         from_bytes = request.http_range.start or 0
         until_bytes = (request.http_range.stop or file_size) - 1
 
+    if not range_header or range_header == "bytes=0-":
+        asyncio.create_task(db.inc_download_count(db_id))
+
     if (until_bytes > file_size) or (from_bytes < 0) or (until_bytes < from_bytes):
         return web.Response(
             status=416,
