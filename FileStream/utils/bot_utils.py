@@ -1,5 +1,5 @@
 from pyrogram.errors import UserNotParticipant, FloodWait
-from pyrogram.enums.parse_mode import ParseMode
+from pyrogram.enums import ParseMode, ChatMemberStatus
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
 from FileStream.utils.translation import LANG
 from FileStream.utils.database import Database
@@ -32,7 +32,7 @@ async def is_user_joined(bot, message: Message):
         return 200
     try:
         user = await bot.get_chat_member(chat_id=channel_chat_id, user_id=message.from_user.id)
-        if user.status == "BANNED":
+        if user.status == ChatMemberStatus.BANNED:
             await message.reply_text(
                 text=LANG.BAN_TEXT.format(Telegram.OWNER_ID),
                 parse_mode=ParseMode.MARKDOWN,
@@ -42,6 +42,8 @@ async def is_user_joined(bot, message: Message):
                 ]])
             )
             return False
+        elif user.status == ChatMemberStatus.LEFT:
+            raise UserNotParticipant
     except UserNotParticipant:
         invite_link = await get_invite_link(bot, chat_id=channel_chat_id)
         if Telegram.VERIFY_PIC:
