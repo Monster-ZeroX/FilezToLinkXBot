@@ -146,6 +146,13 @@ class Database:
     async def inc_download_count(self, file_id):
         await self.file.update_one({"_id": ObjectId(file_id)}, {"$inc": {"downloads": 1}})
 
+    async def report_file(self, file_id):
+        await self.file.update_one({"_id": ObjectId(file_id)}, {"$inc": {"reports": 1}})
+
+    async def get_reported_files(self, limit=50):
+        # Fetch files heavily sorting by 'reports' count natively.
+        return await self.file.find({"reports": {"$gt": 0}}).sort("reports", pymongo.DESCENDING).limit(limit).to_list(length=limit)
+
     async def get_top_users_by_bandwidth(self, limit=50):
         return await self.col.find({"bandwidth_used": {"$exists": True}}).sort("bandwidth_used", pymongo.DESCENDING).limit(limit).to_list(length=limit)
 

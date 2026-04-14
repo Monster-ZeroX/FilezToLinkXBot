@@ -47,6 +47,7 @@ async def admin_dashboard(request: web.Request):
     bw_daily, bw_weekly, bw_monthly = await db.get_bandwidth_stats()
     top_users = await db.get_top_users_by_bandwidth(50)
     top_files = await db.get_top_files_by_bandwidth(50)
+    reported_files = await db.get_reported_files(50)
     
     banned_docs = await db.black.find({}).to_list(length=None)
     banned_ids = [d["id"] for d in banned_docs]
@@ -61,6 +62,7 @@ async def admin_dashboard(request: web.Request):
             bw_monthly=humanbytes(bw_monthly),
             top_users=top_users,
             top_files=top_files,
+            reported_files=reported_files,
             banned_docs=banned_docs,
             banned_ids=banned_ids,
             humanbytes=humanbytes
@@ -129,7 +131,27 @@ async def admin_unban_user(request: web.Request):
     except Exception as e:
         return web.Response(text=f"Failed to unban user: {e}", status=500)
 
+@routes.post("/admin/delete_file")
+async def admin_delete_file(request: web.Request):
+    if not check_auth(request):
+        return web.Response(status=401, text="Unauthorized")
+    data = await request.post()
+    file_id = data.get("file_id")
+    try:
+        await db.delete_one_file(file_id)
+        return web.Response(text="File completely scrubbed from the Database.")
+    except Exception as e:
+        return web.Response(text=f"Failed to wipe file: {e}", status=500)
 
+@routes.post("/report/{db_id}")
+async def report_file_route(request: web.Request):
+    try:
+        db_id = request.match_info["db_id"]
+        # Atomically flag the file inside MongoDB bypassing all authentication 
+        await db.report_file(db_id)
+        return web.Response(text="Report securely transmitted to the Admin.", status=200)
+    except Exception as e:
+        return web.Response(text="Error logging report.", status=500)
 
 @routes.get("/status", allow_head=True)
 async def root_route_handler(_):

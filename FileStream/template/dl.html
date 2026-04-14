@@ -28,6 +28,12 @@
                 <span aria-hidden class="cybr-btn__tag">_%s</span>
             </button>
         </a>
+        <button class="cybr-btn" style="background-color: #7f1d1d; margin-top: 20px; font-size:12px;" onclick="reportFile('{{ db_id }}')">
+            Report File (DMCA)
+            <span aria-hidden>_</span>
+            <span aria-hidden class="cybr-btn__glitch">_Remove it</span>
+            <span aria-hidden class="cybr-btn__tag">_%s</span>
+        </button>
     </div>
 	<script>
         const body = document.querySelector('body');
@@ -38,6 +44,20 @@
             body.classList.toggle('dark')
             footer.classList.toggle('dark')
             title.classList.toggle('dark')
+        }
+
+        async function reportFile(fileId) {
+            if(!confirm("Are you sure you want to flag this file for violating policies?")) return;
+            try {
+                const res = await fetch(`/report/${fileId}`, { method: 'POST' });
+                if (res.ok) {
+                    alert("Report safely submitted.");
+                } else {
+                    alert("Report failure.");
+                }
+            } catch (e) {
+                console.error("Error");
+            }
         }
     </script>
 </body>
