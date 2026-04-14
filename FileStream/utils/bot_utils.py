@@ -17,11 +17,13 @@ db = Database(Telegram.DATABASE_URL, Telegram.SESSION_NAME)
 async def get_invite_link(bot, chat_id: Union[str, int]):
     try:
         invite_link = await bot.create_chat_invite_link(chat_id=chat_id)
-        return invite_link
+        return invite_link.invite_link
     except FloodWait as e:
         print(f"Sleep of {e.value}s caused by FloodWait ...")
         await asyncio.sleep(e.value)
         return await get_invite_link(bot, chat_id)
+    except Exception:
+        return f"https://t.me/{Telegram.UPDATES_CHANNEL}"
 
 async def is_user_joined(bot, message: Message):
     if Telegram.FORCE_SUB_ID and Telegram.FORCE_SUB_ID.startswith("-100"):
@@ -53,7 +55,7 @@ async def is_user_joined(bot, message: Message):
                 parse_mode=ParseMode.HTML,
                 reply_markup=InlineKeyboardMarkup(
                 [[
-                    InlineKeyboardButton("❆ Jᴏɪɴ Oᴜʀ Cʜᴀɴɴᴇʟ ❆", url=invite_link.invite_link)
+                    InlineKeyboardButton("❆ Jᴏɪɴ Oᴜʀ Cʜᴀɴɴᴇʟ ❆", url=invite_link)
                 ]]
                 )
             )
@@ -62,7 +64,7 @@ async def is_user_joined(bot, message: Message):
                 text = "<i>Jᴏɪɴ ᴍʏ ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟ ᴛᴏ ᴜsᴇ ᴍᴇ 🔐</i>",
                 reply_markup=InlineKeyboardMarkup(
                     [[
-                        InlineKeyboardButton("❆ Jᴏɪɴ Oᴜʀ Cʜᴀɴɴᴇʟ ❆", url=invite_link.invite_link)
+                        InlineKeyboardButton("❆ Jᴏɪɴ Oᴜʀ Cʜᴀɴɴᴇʟ ❆", url=invite_link)
                     ]]
                 ),
                 parse_mode=ParseMode.HTML
