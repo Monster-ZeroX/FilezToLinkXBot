@@ -190,7 +190,9 @@ async def stream_handler(request: web.Request):
     except InvalidHash as e:
         raise web.HTTPForbidden(text=e.message)
     except FIleNotFound as e:
-        raise web.HTTPNotFound(text=e.message)
+        with open("FileStream/template/dmca.html") as f:
+            template = jinja2.Template(f.read())
+        return web.Response(text=template.render(bot_url="https://t.me/FilezToLinkXBot"), content_type='text/html')
     except (AttributeError, BadStatusLine, ConnectionResetError):
         pass
 
@@ -203,7 +205,9 @@ async def stream_handler(request: web.Request):
     except InvalidHash as e:
         raise web.HTTPForbidden(text=e.message)
     except FIleNotFound as e:
-        raise web.HTTPNotFound(text=e.message)
+        with open("FileStream/template/dmca.html") as f:
+            template = jinja2.Template(f.read())
+        return web.Response(text=template.render(bot_url="https://t.me/FilezToLinkXBot"), content_type='text/html')
     except (AttributeError, BadStatusLine, ConnectionResetError):
         pass
     except Exception as e:
@@ -215,13 +219,6 @@ async def stream_handler(request: web.Request):
 class_cache = {}
 
 async def media_streamer(request: web.Request, db_id: str):
-    file_info_db = await db.get_file(db_id)
-    if not file_info_db:
-        with open("FileStream/template/dmca.html") as f:
-            template = jinja2.Template(f.read())
-        return web.Response(text=template.render(bot_url="https://t.me/FilezToLinkXBot"), content_type='text/html')
-
-    user_id = file_info_db.get("user_id")
     range_header = request.headers.get("Range", 0)
     
     index = min(work_loads, key=work_loads.get)
@@ -240,6 +237,12 @@ async def media_streamer(request: web.Request, db_id: str):
     logging.debug("before calling get_file_properties")
     file_id = await tg_connect.get_file_properties(db_id, multi_clients)
     logging.debug("after calling get_file_properties")
+
+    try:
+        file_info_db = await db.get_file(db_id)
+        user_id = file_info_db.get("user_id")
+    except Exception:
+        user_id = None
 
     file_size = file_id.file_size
 
