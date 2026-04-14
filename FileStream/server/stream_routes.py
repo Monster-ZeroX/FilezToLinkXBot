@@ -138,8 +138,19 @@ async def admin_delete_file(request: web.Request):
     data = await request.post()
     file_id = data.get("file_id")
     try:
+        file_data = await db.get_file(file_id)
+        if file_data:
+            user_id = file_data.get("user_id")
+            file_name = file_data.get("file_name", "Unknown_File")
+            
+            try:
+                msg = f"🚫 **DMCA / TOS TAKEDOWN NOTICE** 🚫\n\nYour file **{file_name}** has been permanently revoked and wiped from our servers due to a Community Guidelines or Copyright violation.\n\nAll generated proxy links spanning across the web pointing to this payload are profoundly blocked."
+                await FileStream.send_message(chat_id=user_id, text=msg)
+            except Exception as e:
+                logging.error(f"Failed to DMCA-Warn user {user_id}: {e}")
+                
         await db.delete_one_file(file_id)
-        return web.Response(text="File completely scrubbed from the Database.")
+        return web.Response(text="File inherently vaporized. Uploader notified via MTProto.")
     except Exception as e:
         return web.Response(text=f"Failed to wipe file: {e}", status=500)
 
@@ -204,6 +215,13 @@ async def stream_handler(request: web.Request):
 class_cache = {}
 
 async def media_streamer(request: web.Request, db_id: str):
+    file_info_db = await db.get_file(db_id)
+    if not file_info_db:
+        with open("FileStream/template/dmca.html") as f:
+            template = jinja2.Template(f.read())
+        return web.Response(text=template.render(bot_url="https://t.me/FilezToLinkXBot"), content_type='text/html')
+
+    user_id = file_info_db.get("user_id")
     range_header = request.headers.get("Range", 0)
     
     index = min(work_loads, key=work_loads.get)
@@ -222,12 +240,6 @@ async def media_streamer(request: web.Request, db_id: str):
     logging.debug("before calling get_file_properties")
     file_id = await tg_connect.get_file_properties(db_id, multi_clients)
     logging.debug("after calling get_file_properties")
-    
-    try:
-        file_info_db = await db.get_file(db_id)
-        user_id = file_info_db.get("user_id")
-    except Exception:
-        user_id = None
 
     file_size = file_id.file_size
 

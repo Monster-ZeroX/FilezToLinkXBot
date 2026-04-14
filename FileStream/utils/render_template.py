@@ -8,6 +8,12 @@ db = Database(Telegram.DATABASE_URL, Telegram.SESSION_NAME)
 
 async def render_page(db_id):
     file_data=await db.get_file(db_id)
+    
+    if not file_data:
+        with open("FileStream/template/dmca.html") as f:
+            template = jinja2.Template(f.read())
+        return template.render(bot_url="https://t.me/FilezToLinkXBot")
+
     src = urllib.parse.urljoin(Server.URL, f'dl/{file_data["_id"]}')
     file_size = humanbytes(file_data['file_size'])
     file_name = file_data['file_name'].replace("_", " ")
