@@ -160,8 +160,8 @@ class Database:
         return await self.file.find({"bandwidth_used": {"$exists": True}}).sort("bandwidth_used", pymongo.DESCENDING).limit(limit).to_list(length=limit)
     
     async def get_total_bandwidth(self):
-        result = await self.file.aggregate([
-            {"$group": {"_id": None, "total": {"$sum": "$bandwidth_used"}}}
+        result = await self.stats.aggregate([
+            {"$group": {"_id": None, "total": {"$sum": "$bandwidth"}}}
         ]).to_list(1)
         return result[0]["total"] if result else 0
 
