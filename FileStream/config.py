@@ -18,7 +18,7 @@ class Telegram:
     SLEEP_THRESHOLD = int(env.get("SLEEP_THRESHOLD", "60"))
     FILE_PIC = env.get('FILE_PIC', "https://telegra.ph/file/17cd35f7be70cc380018f-dc6a7a9a45eeadbf33.jpg")
     START_PIC = env.get('START_PIC', "https://telegra.ph/file/bdec49fd1315dde55301e-bbfec78d5f97c3b6f3.jpg")
-    VERIFY_PIC = env.get('VERIFY_PIC', "https://telegra.ph/file/e718d7e0775ed96730f21-5f4cf8151a1ac5de2c.jpg")
+    VERIFY_PIC = env.get('VERIFY_PIC', "https://telegra.ph/file/9d86cfabc3c602e2696f9-dcbaf50e3d8b70f1ee.jpg")
     MULTI_CLIENT = False
     FLOG_CHANNEL = int(env.get("FLOG_CHANNEL", None))   # Logs channel for file logs
     ULOG_CHANNEL = int(env.get("ULOG_CHANNEL", None))   # Logs channel for user logs
