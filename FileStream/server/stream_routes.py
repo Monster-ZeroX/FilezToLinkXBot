@@ -21,6 +21,10 @@ db = Database(Telegram.DATABASE_URL, Telegram.SESSION_NAME)
 
 routes = web.RouteTableDef()
 
+@routes.get("/favicon.ico", allow_head=True)
+async def favicon_handler(request: web.Request):
+    return web.FileResponse('logo.ico')
+
 def check_auth(request: web.Request):
     auth_header = request.headers.get("Authorization")
     if not auth_header or not auth_header.startswith("Basic "):
