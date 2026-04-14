@@ -25,6 +25,10 @@ routes = web.RouteTableDef()
 async def favicon_handler(request: web.Request):
     return web.FileResponse('logo.ico')
 
+@routes.get("/logo.png", allow_head=True)
+async def logo_png_handler(request: web.Request):
+    return web.FileResponse('logo.png')
+
 def check_auth(request: web.Request):
     auth_header = request.headers.get("Authorization")
     if not auth_header or not auth_header.startswith("Basic "):

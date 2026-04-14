@@ -33,5 +33,6 @@ async def render_page(db_id):
         file_name=file_name,
         file_url=src,
         file_size=file_size,
-        db_id=str(file_data["_id"])
+        db_id=str(file_data["_id"]),
+        server_url=Server.URL.rstrip('/')
     )
