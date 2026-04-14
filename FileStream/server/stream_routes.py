@@ -277,6 +277,8 @@ async def media_streamer(request: web.Request, db_id: str):
             async for chunk in body_gen:
                 total_bytes += len(chunk)
                 yield chunk
+        except Exception as e:
+            logging.warning(f"Stream interrupted gracefully from client {index}: {str(e)}")
         finally:
             if total_bytes > 0:
                 asyncio.create_task(db.update_bandwidth(db_id, user_id, total_bytes))
