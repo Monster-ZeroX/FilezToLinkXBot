@@ -1,193 +1,148 @@
-<h1 align="center">FileStreamBot</h1>
-<p align="center">
-  <a href="https://github.com/Monster-ZeroX/FilezToLinkXBot">
-    <img src="https://telegra.ph/file/ae0a9c47b0d0816f47536-acd01b6b0d1ad83c66.jpg" alt="Cover Image" width="550">
-  </a>
-</p>  
-  <p align="center">
-   </strong></a>
-    <br><b>
-    <a href="https://github.com/Monster-ZeroX/FilezToLinkXBot/issues">Report a Bug</a>
-    |
-    <a href="https://github.com/Monster-ZeroX/FilezToLinkXBot/issues">Request Feature</a></b>
-  </p>
-
-
-
-### 🍁 About :
+<h1 align="center">⚡ FilezToLinkX Bot - Premium Edition</h1>
 
 <p align="center">
-    <a href="https://github.com/Monster-ZeroX/FilezToLinkXBot">
-        <img src="https://i.ibb.co/ZJzJ9Hq/link-3x.png" height="100" width="100" alt="FileStreamBot Logo">
-    </a>
-</p>
-<p align='center'>
-  This bot provides stream links for Telegram files without the necessity of waiting for the download to complete, offering the ability to store files.
+  <img src="logo.png" alt="FilezToLinkX Logo" width="250" style="border-radius: 20px; box-shadow: 0 0 20px rgba(59,130,246,0.3);">
 </p>
 
+<p align="center">
+  <b>A state-of-the-art highly concurrent Telegram File Streaming backend featuring real-time bandwidth analytics, a beautiful glassmorphic administrative dashboard, and a multi-cloning network architecture for blazing-fast downloads.</b>
+</p>
 
-### ♢ How to Deploy :
+<p align="center">
+  <a href="https://github.com/Monster-ZeroX/FilezToLinkXBot/issues"><img src="https://img.shields.io/badge/Report%20Bug-red?style=for-the-badge&logo=github"></a>
+  <a href="https://github.com/Monster-ZeroX/FilezToLinkXBot/issues"><img src="https://img.shields.io/badge/Request%20Feature-blue?style=for-the-badge&logo=github"></a>
+  <img src="https://img.shields.io/badge/Python-3.11+-yellow?style=for-the-badge&logo=python">
+  <img src="https://img.shields.io/badge/MongoDB-Optimized-green?style=for-the-badge&logo=mongodb">
+</p>
 
-<i>Either you could locally host, VPS, or deploy on [Heroku](https://heroku.com)</i>
+---
 
-#### ♢ Click on This Drop-down and get more details
+## 🌟 Premium Features
 
-<br>
+- **🚀 Highly Concurrent Multi-Client Architecture**: Seamlessly scales payload deliveries across 40+ proxy bot-tokens instantly bypassing Telegram's aggressive 1469s `FloodWait` bans! (New Auto-Healing implementation ignores dead tokens gracefully).
+- **📊 Real-Time Analytics Dashboard**: Monitor every byte of network traffic securely via the built-in HTTP basic-auth dashboard located at `/admin`. Includes Daily, Weekly, and Monthly traffic windows!
+- **🌐 Zero-Waiting Streaming Access**: Automatically generates static download routes `/watch/` and `/dl/` for massive Telegram files bridging VLC/IDM straight to the cloud seamlessly.
+- **🛡️ Integrated User Management Engine**: Admins can securely `Warn`, `Ban`, and `Unban` users natively straight from the web dashboard. Banned users stay logged for lifetime network oversight.
+- **📈 Advanced Download Counters**: Every stream is wrapped locally forcing MongoDB to track live byte-exchange counts per user and per file to accurately trace "most requested" data allocations.
+
+---
+
+## 💻 How It Works
+
+**FilezToLinkX** uses `Pyrogram` and `aiohttp` under the hood. When a user forwards or uploads a file chunk to the Bot inside Telegram, the system indexes the MTProto ID directly into MongoDB. In return, the user automatically gets an HTTP URL!
+
+When an external browser clicks that URL, the internal Dockerized `aiohttp` python server rapidly connects to Telegram's Core MTProto framework utilizing its **Multi-Client Pool**, instantly streaming the exact bitstreams straight out of Telegram's physical data-centers and piping them synchronously to the Web downloader! All while seamlessly logging bandwidth metrics natively on the VPS.
+
+---
+
+## ⚙️ Environment Variables
+
+Set these properties inside your server's `.env` or Heroku Config panel.
+
+### 📝 Mandatory Details
+
+| Variable | Type | Description |
+|---|---|---|
+| `API_ID` | `int` | Telegram API App ID from [My Telegram](https://my.telegram.org). |
+| `API_HASH` | `str` | Telegram API Hash from [My Telegram](https://my.telegram.org). |
+| `BOT_TOKEN` | `str` | Your Primary Bot Token from [@BotFather](https://t.me/BotFather). |
+| `OWNER_ID` | `int` | Your personal Telegram User ID. |
+| `DATABASE_URL` | `str` | MongoDB URI String (Required for bandwidth tracking). |
+| `FLOG_CHANNEL` | `int` | ID of the Channel where all internal bot actions & links are logged (-100...). |
+| `ULOG_CHANNEL` | `int` | ID of the Channel to trace completely new registering users. |
+| `ADMIN_USERNAME` | `str` | Secure Username for `/admin` web dashboard. |
+| `ADMIN_PASSWORD` | `str` | Secure Password for `/admin` web dashboard. |
+| `PORT` | `int` | HTTP Web server port. Highly recommend `8080`. | 
+
+### 🗼 Multi-Client / Load Balancing
+*Add these strictly to bypass native MTProto Flood limits by separating chunk downloads:*
+| Variable | Description |
+|---|---|
+| `MULTI_TOKEN1` ... `MULTI_TOKEN40` | Up to 40 additional unique Bot Tokens. The engine natively balances the load dynamically! |
+
+### 🪐 Optional Optimizations
+| Variable | Description |
+|---|---|
+| `FQDN` | A Custom Domain mapped to your VPS `(e.g., example.com)`. |
+| `HAS_SSL` | Set `True` if you serve Nginx Proxy Manager securely with HTTPS. |
+| `FORCE_SUB` & `FORCE_SUB_ID` | Set to `True` and list the native channel ID to force user joining. |
+| `BOT_WORKERS` | Async execution max limits. Defaults to `20`. |
+
+---
+
+## 🚀 Deployment Guides
+
 <details>
-  <summary><b>Deploy on Heroku (Paid)  :</b></summary>
-
-- Fork This Repo
-- Click on Deploy Easily
-- Press the below button to Fast deploy on Heroku
-
-
-   [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
-- Go to <a href="#mandatory-vars">variables tab</a> for more info on setting up environmental variables. </details>
-
-<details>
-  <summary><b>Deploy Locally :</b></summary>
+  <summary><b>1. Deploy using Docker (Recommended ⭐️)</b></summary>
 <br>
 
-```sh
-git clone https://github.com/Monster-ZeroX/FilezToLinkXBot
-cd FileStreamBot
-python3 -m venv ./venv
-. ./venv/bin/activate
-pip install -r requirements.txt
-python3 -m FileStream
-```
+Perfect for NGINX Proxy Manager and highly robust 24/7 VPS uptime.
+```bash
+# 1. Clone the repository
+git clone https://github.com/Monster-ZeroX/FilezToLink.git
+cd FilezToLink
 
-- To stop the whole bot,
- do <kbd>CTRL</kbd>+<kbd>C</kbd>
-
-- If you want to run this bot 24/7 on the VPS, follow these steps.
-```sh
-sudo apt install tmux -y
-tmux
-python3 -m FileStream
-```
-- now you can close the VPS and the bot will run on it.
-
-  </details>
-
-<details>
-  <summary><b>Deploy using Docker :</b></summary>
-<br>
-* Clone the repository:
-```sh
-git clone https://github.com/Monster-ZeroX/FilezToLinkXBot
-cd FileStreamBot
-```
-* Build own Docker image:
-```sh
+# 2. Build the Docker Image securely
 docker build -t file-stream .
+
+# 3. Spin up the Core Engine matching your .env mapped PORT
+docker run -d --restart unless-stopped --name fsb \
+  -v $(pwd)/.env:/app/.env \
+  -p 8080:8080 \
+  file-stream
 ```
 
-* Create ENV and Start Container:
-```sh
-docker run -d --restart unless-stopped --name fsb \
--v /PATH/TO/.env:/app/.env \
--p 8000:8000 \
-file-stream
-```
-- if you need to change the variables in .env file after your bot was already started, all you need to do is restart the container for the bot settings to get updated:
-```sh
+*To seamlessly reset or apply new environment configs:*
+```bash
 docker restart fsb
 ```
-
-  </details>
-
-<details>
-  <summary><b>Setting up things :</b></summary>
-
-
-If you're on Heroku, just add these in the Environmental Variables
-or if you're Locally hosting, create a file named `.env` in the root directory and add all the variables there.
-An example of `.env` file:
-
-```sh
-API_ID = 789456
-API_HASH = ysx275f9638x896g43sfzx65
-BOT_TOKEN = 12345678:your_bot_token
-ULOG_CHANNEL = -100123456789
-FLOG_CHANNEL = -100123456789
-DATABASE_URL = mongodb://admin:pass@192.168.27.1
-FQDN = 192.168.27.1
-HAS_SSL = False
-MULTI_TOKEN1 = 12345678:bot_token_multi_client_1
-MULTI_TOKEN2 = 12345678:bot_token_multi_client_2
-OWNER_ID = 987456321
-PORT = 8080
-```
-</details>
-
-
-<details>
-  <summary><b>Vars and Details :</b></summary>
-
-#### 📝 Mandatory Vars :
-
-* `API_ID`: API ID of your Telegram account, can be obtained from [My Telegram](https://my.telegram.org). `int`
-* `API_HASH`: API hash of your Telegram account, can be obtained from [My Telegram](https://my.telegram.org). `str`
-* `OWNER_ID`: Your Telegram User ID, Send `/id` to [@missrose_bot](https://telegram.dog/MissRose_bot) to get Your Telegram User ID `int`
-* `BOT_TOKEN`: Telegram API token of your bot, can be obtained from [@BotFather](https://t.me/BotFather). `str`
-* `FLOG_CHANNEL`: ID of the channel where bot will store all Files from users `int`.
-* `ULOG_CHANNEL`: ID of the channel where bot will send logs of New Users`int`.
-* `BOT_WORKERS`: Number of updates bot should process from Telegram at once, by default to 10 updates. `int`
-* `DATABASE_URL`: MongoDB URI for saving User Data and Files List created by user. `str`
-* `FQDN`: A Fully Qualified Domain Name if present without http/s. Defaults to `BIND_ADDRESS`. `str`
-
-#### 🗼 MultiClient Vars :
-* `MULTI_TOKEN1`: Add your first bot token or session strings here. `str`
-* `MULTI_TOKEN2`: Add your second bot token or session strings here. `str`
-
-#### 🪐 Optional Vars :
-
-* `UPDATES_CHANNEL`: Channel Username without `@` to set channel as Update Channel `str`
-* `FORCE_SUB_ID`: Force Sub Channel ID, if you want to use Force Sub. start with `-100` `int
-* `FORCE_SUB`: Set to True, so every user have to Join update channel to use the bot. `bool`
-* `AUTH_USERS`: Put authorized user IDs to use bot, separated by <kbd>Space</kbd>. `int`
-* `SLEEP_THRESHOLD`: Set global flood wait threshold, auto-retry requests under 60s. `int`
-* `SESSION_NAME`: Name for the Database created on your MongoDB. Defaults to `FileStream`. `str`
-* `FILE_PIC`: To set Image at `/files` command. Defaults to pre-set image. `str`
-* `START_PIC`: To set Image at `/start` command. Defaults to pre-set image. `str`
-* `VERIFY_PIC`: To set Image at Force Sub Verification. Defaults to pre-set image. `str`
-* `WORKERS`: Number of maximum concurrent workers for handling incoming updates. Defaults to `6`. `int`
-* `PORT`: The port that you want your webapp to be listened to. Defaults to `8080`. `int`
-* `BIND_ADDRESS`: Your server bind adress. Defauls to `0.0.0.0`. `int`
-* `MODE`: Should be set to `secondary` if you only want to use the server for serving files. `str`
-* `NO_PORT`: (True/False) Set PORT to 80 or 443 hide port display; ignore if on Heroku. Defaults to `False`.
-* `HAS_SSL`: (can be either `True` or `False`) If you want the generated links in https format. Defaults to `False`. 
-
 </details>
 
 <details>
-  <summary><b>How to Use :</b></summary>
+  <summary><b>2. Deploy Completely Locally</b></summary>
+<br>
 
-:warning: **Before using the  bot, don't forget to add the bot to the `LOG_CHANNEL` as an Admin**
- 
-#### ‍☠️ Bot Commands :
+For local PC environments or classic VPS configurations.
+```bash
+git clone https://github.com/Monster-ZeroX/FilezToLink.git
+cd FilezToLink
 
-```sh
-/start      : To check the bot is alive or not.
-/help       : To Get Help Message.
-/about      : To check About the Bot.
-/files      : To Get All Files List of User.
-/del        : To Delete Files from DB with FileID. [ADMIN]
-/ban        : To Ban Any Channel or User to use bot. [ADMIN]
-/unban      : To Unban Any Channel or User to use bot. [ADMIN]
-/status     : To Get Bot Status and Total Users. [ADMIN]
-/broadcast  : To Broadcast any message to all users of bot. [ADMIN]
+# Create & Enter highly isolated virtual env
+python3 -m venv ./venv
+source ./venv/bin/activate
+
+# Install dependencies rapidly
+pip install -r requirements.txt
+
+# Boot the Bot!
+python3 -m FileStream
 ```
+</details>
 
-#### 🍟 Channel Support :
+<details>
+  <summary><b>3. Deploy on Heroku</b></summary>
+<br>
 
-*Bot also Supported with Channels. Just add bot Channel as Admin. If any new file comes in Channel it will edit it with **Get Download Link** Button.*
-
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+- Simply Fork the repository and press the Deploy Button above.
+- Configure the variables cleanly in the deployment GUI natively!
 </details>
 
 ---
-<h4 align='center'>© 2024 MonsterZeroX</h4>
 
+## 📟 Telegram Commands
 
+**⚠️ Critical**: Ensure your Primary Bot represents an `Admin` precisely inside your `FLOG_CHANNEL` or it will critically panic (`[400 CHANNEL_PRIVATE]`).
 
+| Command | Status | Description |
+|---|---|---|
+| `/start` | User | Verify connection & initiate Database User schema. |
+| `/help` / `/about` | User | Get dynamic instructional responses. |
+| `/files` | User | Obtain completely interactive index of all historically processed files! |
+| `/del` | Admin | Delete a mapped target File natively using the provided FileID. |
+| `/ban` / `/unban` | Admin | Manually blacklist dangerous users from MTProto integration natively. |
+| `/status` | Admin | Realtime hardware loads and internal client connections count. |
+| `/broadcast` | Admin | Propagate messaging completely to every indexed user in MongoDB! |
+
+---
+<p align="center"><b>© 2026 Developed explicitly by MonsterZeroX</b></p>
