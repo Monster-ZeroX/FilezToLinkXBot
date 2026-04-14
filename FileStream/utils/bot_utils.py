@@ -36,7 +36,10 @@ async def is_user_joined(bot, message: Message):
             await message.reply_text(
                 text=LANG.BAN_TEXT.format(Telegram.OWNER_ID),
                 parse_mode=ParseMode.MARKDOWN,
-                disable_web_page_preview=True
+                disable_web_page_preview=True,
+                reply_markup=InlineKeyboardMarkup([[
+                    InlineKeyboardButton("Contact Developer 👨‍💻", url="https://t.me/Monster_ZeroX")
+                ]])
             )
             return False
     except UserNotParticipant:
@@ -144,7 +147,10 @@ async def is_user_banned(message):
         await message.reply_text(
             text=LANG.BAN_TEXT.format(Telegram.OWNER_ID),
             parse_mode=ParseMode.MARKDOWN,
-            disable_web_page_preview=True
+            disable_web_page_preview=True,
+            reply_markup=InlineKeyboardMarkup([[
+                InlineKeyboardButton("Contact Developer 👨‍💻", url="https://t.me/Monster_ZeroX")
+            ]])
         )
         return True
     return False

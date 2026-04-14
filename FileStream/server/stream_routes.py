@@ -10,8 +10,126 @@ from FileStream.config import Telegram, Server
 from FileStream.server.exceptions import FIleNotFound, InvalidHash
 from FileStream import utils, StartTime, __version__
 from FileStream.utils.render_template import render_page
+import base64
+import asyncio
+import jinja2
+from pyrogram.enums import ParseMode
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from FileStream.utils.database import Database
+from FileStream.utils.human_readable import humanbytes
+db = Database(Telegram.DATABASE_URL, Telegram.SESSION_NAME)
 
 routes = web.RouteTableDef()
+
+def check_auth(request: web.Request):
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Basic "):
+        return False
+    try:
+        decoded = base64.b64decode(auth_header[6:]).decode("utf-8")
+        username, password = decoded.split(":", 1)
+        if username == Server.ADMIN_USERNAME and password == Server.ADMIN_PASSWORD:
+            return True
+    except Exception:
+        pass
+    return False
+
+@routes.get("/admin", allow_head=True)
+async def admin_dashboard(request: web.Request):
+    if not check_auth(request):
+        return web.Response(
+            status=401,
+            headers={"WWW-Authenticate": 'Basic realm="Admin Access"'},
+            text="Unauthorized"
+        )
+    
+    total_bandwidth = await db.get_total_bandwidth()
+    bw_daily, bw_weekly, bw_monthly = await db.get_bandwidth_stats()
+    top_users = await db.get_top_users_by_bandwidth(50)
+    top_files = await db.get_top_files_by_bandwidth(50)
+    
+    banned_docs = await db.black.find({}).to_list(length=None)
+    banned_ids = [d["id"] for d in banned_docs]
+
+    try:
+        with open("FileStream/template/admin.html") as f:
+            template = jinja2.Template(f.read())
+        html_content = template.render(
+            total_bandwidth=humanbytes(total_bandwidth),
+            bw_daily=humanbytes(bw_daily),
+            bw_weekly=humanbytes(bw_weekly),
+            bw_monthly=humanbytes(bw_monthly),
+            top_users=top_users,
+            top_files=top_files,
+            banned_docs=banned_docs,
+            banned_ids=banned_ids,
+            humanbytes=humanbytes
+        )
+        return web.Response(text=html_content, content_type='text/html')
+    except BaseException as e:
+        return web.Response(text=f"Error rendering admin: {e}", status=500)
+
+@routes.post("/admin/warn")
+async def admin_warn_user(request: web.Request):
+    if not check_auth(request):
+        return web.Response(status=401, text="Unauthorized")
+    data = await request.post()
+    user_id = data.get("user_id")
+    try:
+        await FileStream.send_message(
+            chat_id=int(user_id),
+            text="⚠️ **WARNING**\n\nYour bandwidth usage is abnormally high. Please refrain from directly embedding bots links on external sites or you may be banned.",
+            parse_mode=ParseMode.MARKDOWN
+        )
+        return web.Response(text="User warned successfully.")
+    except Exception as e:
+        return web.Response(text=f"Failed to warn user: {e}", status=500)
+
+@routes.post("/admin/ban")
+async def admin_ban_user(request: web.Request):
+    if not check_auth(request):
+        return web.Response(status=401, text="Unauthorized")
+    data = await request.post()
+    user_id = data.get("user_id")
+    try:
+        await FileStream.send_message(
+            chat_id=int(user_id),
+            text="🚫 **BANNED**\n\nYou have been banned from using this service due to bandwidth abuse. Contact the developer if you think this is a mistake.",
+            parse_mode=ParseMode.MARKDOWN,
+            reply_markup=InlineKeyboardMarkup([[
+                InlineKeyboardButton("Contact Developer 👨‍💻", url="https://t.me/Monster_ZeroX")
+            ]])
+        )
+    except Exception:
+        pass # Send message could fail if they blocked the bot
+    try:
+        await db.ban_user(int(user_id))
+        # purposely NOT deleting the user from db so they remain in the bandwidth table
+        return web.Response(text="User banned successfully.")
+    except Exception as e:
+        return web.Response(text=f"Failed to ban user: {e}", status=500)
+
+@routes.post("/admin/unban")
+async def admin_unban_user(request: web.Request):
+    if not check_auth(request):
+        return web.Response(status=401, text="Unauthorized")
+    data = await request.post()
+    user_id = data.get("user_id")
+    try:
+        await FileStream.send_message(
+            chat_id=int(user_id),
+            text="✅ **UNBANNED**\n\nYour access to the bot has been restored! Please be mindful of your bandwidth usage.",
+            parse_mode=ParseMode.MARKDOWN
+        )
+    except Exception:
+        pass
+    try:
+        await db.unban_user(int(user_id))
+        return web.Response(text="User unbanned successfully.")
+    except Exception as e:
+        return web.Response(text=f"Failed to unban user: {e}", status=500)
+
+
 
 @routes.get("/status", allow_head=True)
 async def root_route_handler(_):
@@ -83,6 +201,12 @@ async def media_streamer(request: web.Request, db_id: str):
     file_id = await tg_connect.get_file_properties(db_id, multi_clients)
     logging.debug("after calling get_file_properties")
     
+    try:
+        file_info_db = await db.get_file(db_id)
+        user_id = file_info_db.get("user_id")
+    except Exception:
+        user_id = None
+
     file_size = file_id.file_size
 
     if range_header:
@@ -120,12 +244,21 @@ async def media_streamer(request: web.Request, db_id: str):
     if not mime_type:
         mime_type = mimetypes.guess_type(file_name)[0] or "application/octet-stream"
 
-    # if "video/" in mime_type or "audio/" in mime_type:
     #     disposition = "inline"
+    
+    async def body_generator_wrapper(body_gen):
+        total_bytes = 0
+        try:
+            async for chunk in body_gen:
+                total_bytes += len(chunk)
+                yield chunk
+        finally:
+            if total_bytes > 0:
+                asyncio.create_task(db.update_bandwidth(db_id, user_id, total_bytes))
 
     return web.Response(
         status=206 if range_header else 200,
-        body=body,
+        body=body_generator_wrapper(body),
         headers={
             "Content-Type": f"{mime_type}",
             "Content-Range": f"bytes {from_bytes}-{until_bytes}/{file_size}",

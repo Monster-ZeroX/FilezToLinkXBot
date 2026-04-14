@@ -1,6 +1,7 @@
 import pymongo
 import time
 import motor.motor_asyncio
+import datetime
 from bson.objectid import ObjectId
 from bson.errors import InvalidId
 from FileStream.server.exceptions import FIleNotFound
@@ -12,6 +13,7 @@ class Database:
         self.col = self.db.users
         self.black = self.db.blacklist
         self.file = self.db.file
+        self.stats = self.db.stats_bandwidth
 
 #---------------------[ NEW USER ]---------------------#
     def new_user(self, id):
@@ -132,3 +134,46 @@ class Database:
             await self.col.update_one({"id": id}, {"$inc": {"Links": -1}})
         elif operation == "+":
             await self.col.update_one({"id": id}, {"$inc": {"Links": 1}})
+
+# ---------------------[ BANDWIDTH TRACKING ]---------------------#
+    async def update_bandwidth(self, file_id, user_id, bytes_sent):
+        today = datetime.date.today().isoformat()
+        await self.stats.update_one({"_id": today}, {"$inc": {"bandwidth": bytes_sent}}, upsert=True)
+        
+        if user_id:
+            await self.col.update_one({"id": int(user_id)}, {"$inc": {"bandwidth_used": bytes_sent}})
+        await self.file.update_one({"_id": ObjectId(file_id)}, {"$inc": {"bandwidth_used": bytes_sent}})
+
+    async def get_top_users_by_bandwidth(self, limit=50):
+        return await self.col.find({"bandwidth_used": {"$exists": True}}).sort("bandwidth_used", pymongo.DESCENDING).limit(limit).to_list(length=limit)
+
+    async def get_top_files_by_bandwidth(self, limit=50):
+        return await self.file.find({"bandwidth_used": {"$exists": True}}).sort("bandwidth_used", pymongo.DESCENDING).limit(limit).to_list(length=limit)
+    
+    async def get_total_bandwidth(self):
+        result = await self.file.aggregate([
+            {"$group": {"_id": None, "total": {"$sum": "$bandwidth_used"}}}
+        ]).to_list(1)
+        return result[0]["total"] if result else 0
+
+    async def get_bandwidth_stats(self):
+        today = datetime.date.today()
+        daily = today.isoformat()
+        week_dates = [(today - datetime.timedelta(days=i)).isoformat() for i in range(7)]
+        month_dates = [(today - datetime.timedelta(days=i)).isoformat() for i in range(30)]
+        
+        records = await self.stats.find({"_id": {"$in": month_dates}}).to_list(length=30)
+        
+        bw_daily = 0
+        bw_weekly = 0
+        bw_monthly = 0
+        
+        for r in records:
+            b = r.get("bandwidth", 0)
+            if r["_id"] == daily:
+                bw_daily += b
+            if r["_id"] in week_dates:
+                bw_weekly += b
+            bw_monthly += b
+            
+        return bw_daily, bw_weekly, bw_monthly

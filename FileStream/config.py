@@ -36,6 +36,5 @@ class Server:
     URL = "http{}://{}{}/".format(
         "s" if HAS_SSL else "", FQDN, "" if NO_PORT else ":" + str(PORT)
     )
-
-
-
+    ADMIN_USERNAME = str(env.get("ADMIN_USERNAME", "admin"))
+    ADMIN_PASSWORD = str(env.get("ADMIN_PASSWORD", "admin123"))

@@ -51,7 +51,10 @@ async def initialize_clients():
             logging.error(f"Failed starting Client - {client_id} Error:", exc_info=True)
     
     clients = await asyncio.gather(*[start_client(i, token) for i, token in all_tokens.items()])
-    multi_clients.update(dict(clients))
+    valid_clients = [c for c in clients if c is not None]
+    if valid_clients:
+        multi_clients.update(dict(valid_clients))
+    
     if len(multi_clients) != 1:
         Telegram.MULTI_CLIENT = True
         print("Multi-Client Mode Enabled")
