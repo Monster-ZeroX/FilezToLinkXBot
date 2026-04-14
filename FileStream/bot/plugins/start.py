@@ -64,7 +64,8 @@ async def start(bot: Client, message: Message):
                 file_id = file_check['file_id']
                 file_name = file_check['file_name']
                 if db_id == usr_cmd:
-                    filex = await message.reply_cached_media(file_id=file_id, caption=f'**{file_name}**')
+                    reply_markup, _ = await gen_linkx(m=message, _id=db_id, name=[FileStream.username, FileStream.fname])
+                    filex = await message.reply_cached_media(file_id=file_id, caption=f'**{file_name}**', reply_markup=reply_markup)
                     await asyncio.sleep(3600)
                     try:
                         await filex.delete()
